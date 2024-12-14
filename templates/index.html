@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Paper Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/marked" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div x-data="{
+        file: null,
+        topics: [],
+        selectedTopics: [],
+        numQuestions: 10,
+        difficulty: 'medium',
+        questionTypes: [],
+        loading: false,
+        generating: false,
+        questionPaper: '',
+        showResult: false,
+
+        async uploadSyllabus() {
+            if (!this.file) {
+                alert('Please select a PDF file');
+                return;
+            }
+
+            this.loading = true;
+            const formData = new FormData();
+            formData.append('file', this.file);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    this.topics = result.topics;
+                    this.selectedTopics = [];
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                alert(error.message || 'Error processing syllabus');
+                console.error('Upload error:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async generatePaper() {
+            if (this.selectedTopics.length === 0) {
+                alert('Please select at least one topic');
+                return;
+            }
+            if (this.questionTypes.length === 0) {
+                alert('Please select at least one question type');
+                return;
+            }
+
+            this.generating = true;
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        selected_topics: this.selectedTopics,
+                        num_questions: parseInt(this.numQuestions),
+                        difficulty: this.difficulty,
+                        question_types: this.questionTypes
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    this.questionPaper = result.qp;
+                    this.showResult = true;
+                    // Render markdown after the next DOM update
+                    this.$nextTick(() => {
+                        const content = marked.parse(this.questionPaper);
+                        document.getElementById('questionPaperContent').innerHTML = content;
+                    });
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                alert(error.message || 'Error generating question paper');
+                console.error('Generation error:', error);
+            } finally {
+                this.generating = false;
+            }
+        }
+    }" 
+    class="container mx-auto px-4 py-8 max-w-4xl">
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 class="text-2xl font-bold mb-6">Question Paper Generator</h1>
+
+            <!-- File Upload Section -->
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Syllabus (PDF)
+                </label>
+                <input type="file" 
+                       accept=".pdf"
+                       @change="file = $event.target.files[0]"
+                       class="block w-full text-sm text-gray-500 mb-4
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-md file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-blue-50 file:text-blue-700
+                              hover:file:bg-blue-100">
+                <button @click="uploadSyllabus()"
+                        :disabled="loading"
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300">
+                    <span x-show="!loading">Upload and Process</span>
+                    <span x-show="loading">Processing...</span>
+                </button>
+            </div>
+
+            <!-- Topics Selection -->
+            <div x-show="topics.length > 0" class="mb-8">
+                <h2 class="text-lg font-semibold mb-3">Select Topics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <template x-for="topic in topics" :key="topic">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" 
+                                   :value="topic" 
+                                   x-model="selectedTopics"
+                                   class="rounded text-blue-600">
+                            <span x-text="topic" class="text-sm"></span>
+                        </label>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Question Paper Configuration -->
+            <div x-show="topics.length > 0" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Number of Questions
+                    </label>
+                    <input type="number" 
+                           x-model="numQuestions"
+                           min="1" 
+                           max="50"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Difficulty Level
+                    </label>
+                    <select x-model="difficulty"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Question Types
+                    </label>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="Multiple Select Questions, multiple answers could be correct" x-model="questionTypes" class="rounded">
+                            <span class="text-sm">Multiple Select Questions (MSQs)</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="
+                            Comprehension type MCQ RELATED TO THE TOPICS ONLY.. but these go like
+                            Passage:
+                            The Himalayas, often referred to as the Third Pole, play a critical role in regulating the Earth's climate. They act as a natural barrier influencing monsoon patterns and are home to some of the largest glaciers outside the polar regions. However, rising global temperatures are causing these glaciers to melt at an alarming rate, threatening water security for millions of people in South Asia who rely on rivers fed by these glaciers.
+
+                            Question:
+                            What is the primary environmental concern mentioned in the passage?
+                            A. Disruption of monsoon patterns
+                            B. Melting of Himalayan glaciers
+                            C. Overpopulation in South Asia
+                            D. Loss of biodiversity in the Himalayas
+
+                            " x-model="questionTypes" class="rounded">
+                            <span class="text-sm">Comprehension based questions</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="
+                            Match the following based MCQ like Match the following pairs (take care of proper spacing give like more spaing bw both columns!):
+
+                            Column A	                  Column B
+                            1. Photosynthesis	          A. Newton
+                            2. Theory of Gravitation	  B. Faraday
+                            3. Electromagnetic Induction  C. Mendel
+                            4. Laws of Inheritance	      D. Calvin
+                            Options:
+                            A 1-A, 2-C, 3-D, 4-B
+                            B 1-D, 2-A, 3-B, 4-C
+                            C 1-B, 2-D, 3-A, 4-C
+                            D 1-C, 2-B, 3-D, 4-A
+                            
+                            " x-model="questionTypes" class="rounded">
+                            <span class="text-sm">Match the Following</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="Assertion and Reasoning Based MCQ
+                            Assertion (A): Global warming has led to a rise in the frequency of extreme weather events such as cyclones and floods.
+                            Reason (R): Increased greenhouse gas emissions trap more heat in the atmosphere, intensifying the Earth's hydrological cycle.
+                            Options:
+                            Both A and R are true, and R is the correct explanation of A.
+                            Both A and R are true, but R is not the correct explanation of A.
+                            A is true, but R is false.
+                            A is false, but R is true.
+                            " x-model="questionTypes" class="rounded">
+                            <span class="text-sm">Assertion and Reasoning</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="Statement and Conclusion based MCQ like Statement:
+                            All athletes are disciplined individuals, and some disciplined individuals are vegetarians.
+                            
+                            Conclusions:
+                            
+                            Some athletes are vegetarians.
+                            Some disciplined individuals are not athletes.
+                            Options:
+                            A Only conclusion 1 follows.
+                            B Only conclusion 2 follows.
+                            C Both conclusions 1 and 2 follow.
+                            D Neither conclusion 1 nor 2 follows.
+                            
+                            " x-model="questionTypes" class="rounded">
+                            <span class="text-sm">Statement and Conclusion</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button @click="generatePaper()"
+                        :disabled="generating"
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:bg-green-300">
+                    <span x-show="!generating">Generate Question Paper</span>
+                    <span x-show="generating">Generating...</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Question Paper Display -->
+<div x-show="showResult" class="bg-white rounded-lg shadow-lg p-6 mt-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6 no-print">
+            <h2 class="text-xl font-bold">Generated Question Paper</h2>
+            <button @click="window.print()" 
+                    class="bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors">
+                Print Question Paper
+            </button>
+        </div>
+        <style>
+            @media print {
+                body * {
+                    visibility: hidden;
+                }
+                #questionPaperContent, #questionPaperContent * {
+                    visibility: visible;
+                }
+                #questionPaperContent {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                }
+            }
+        </style>
+        <div id="questionPaperContent" class="markdown-content prose prose-slate max-w-none">
+            <!-- Markdown content will be rendered here -->
+        </div>
+    </div>
+</div>
+    </div>
+</body>
+</html>
