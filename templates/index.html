@@ -83,9 +83,8 @@
                     this.showResult = true;
                     // Render markdown after the next DOM update
                     this.$nextTick(() => {
-                        const content = marked.parse(this.questionPaper);
-                        document.getElementById('questionPaperContent').innerHTML = content;
-                    });
+    document.getElementById('questionPaperContent').innerText = this.questionPaper;
+});
                 } else {
                     throw new Error(result.error);
                 }
@@ -171,70 +170,29 @@
                     </label>
                     <div class="space-y-2">
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" value="Multiple Select Questions, multiple answers could be correct" x-model="questionTypes" class="rounded">
+                            <input type="checkbox" value="Normal MCQs" x-model="questionTypes" class="rounded">
+                            <span class="text-sm">Normal Multiple Choice Questions</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" value="Multiple Select Questions" x-model="questionTypes" class="rounded">
                             <span class="text-sm">Multiple Select Questions (MSQs)</span>
                         </label>
                         <label class="flex items-center space-x-2">
                             <input type="checkbox" value="
-                            Comprehension type MCQ RELATED TO THE TOPICS ONLY.. but these go like
-                            Passage:
-                            The Himalayas, often referred to as the Third Pole, play a critical role in regulating the Earth's climate. They act as a natural barrier influencing monsoon patterns and are home to some of the largest glaciers outside the polar regions. However, rising global temperatures are causing these glaciers to melt at an alarming rate, threatening water security for millions of people in South Asia who rely on rivers fed by these glaciers.
-
-                            Question:
-                            What is the primary environmental concern mentioned in the passage?
-                            A. Disruption of monsoon patterns
-                            B. Melting of Himalayan glaciers
-                            C. Overpopulation in South Asia
-                            D. Loss of biodiversity in the Himalayas
-
-                            " x-model="questionTypes" class="rounded">
+                            Comprehension type MCQ RELATED TO THE TOPICS ONLY" x-model="questionTypes" class="rounded">
                             <span class="text-sm">Comprehension based questions</span>
                         </label>
                         <label class="flex items-center space-x-2">
                             <input type="checkbox" value="
-                            Match the following based MCQ like Match the following pairs (take care of proper spacing give like more spaing bw both columns!):
-
-                            Column A	                  Column B
-                            1. Photosynthesis	          A. Newton
-                            2. Theory of Gravitation	  B. Faraday
-                            3. Electromagnetic Induction  C. Mendel
-                            4. Laws of Inheritance	      D. Calvin
-                            Options:
-                            A 1-A, 2-C, 3-D, 4-B
-                            B 1-D, 2-A, 3-B, 4-C
-                            C 1-B, 2-D, 3-A, 4-C
-                            D 1-C, 2-B, 3-D, 4-A
-                            
-                            " x-model="questionTypes" class="rounded">
+                            Match the following based MCQ" x-model="questionTypes" class="rounded">
                             <span class="text-sm">Match the Following</span>
                         </label>
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" value="Assertion and Reasoning Based MCQ
-                            Assertion (A): Global warming has led to a rise in the frequency of extreme weather events such as cyclones and floods.
-                            Reason (R): Increased greenhouse gas emissions trap more heat in the atmosphere, intensifying the Earth's hydrological cycle.
-                            Options:
-                            Both A and R are true, and R is the correct explanation of A.
-                            Both A and R are true, but R is not the correct explanation of A.
-                            A is true, but R is false.
-                            A is false, but R is true.
-                            " x-model="questionTypes" class="rounded">
+                            <input type="checkbox" value="Assertion and Reasoning Based MCQs" x-model="questionTypes" class="rounded">
                             <span class="text-sm">Assertion and Reasoning</span>
                         </label>
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" value="Statement and Conclusion based MCQ like Statement:
-                            All athletes are disciplined individuals, and some disciplined individuals are vegetarians.
-                            
-                            Conclusions:
-                            
-                            Some athletes are vegetarians.
-                            Some disciplined individuals are not athletes.
-                            Options:
-                            A Only conclusion 1 follows.
-                            B Only conclusion 2 follows.
-                            C Both conclusions 1 and 2 follow.
-                            D Neither conclusion 1 nor 2 follows.
-                            
-                            " x-model="questionTypes" class="rounded">
+                            <input type="checkbox" value="Statement and Conclusion based MCQ" x-model="questionTypes" class="rounded">
                             <span class="text-sm">Statement and Conclusion</span>
                         </label>
                     </div>
@@ -275,7 +233,7 @@
                 }
             }
         </style>
-        <div id="questionPaperContent" class="markdown-content prose prose-slate max-w-none">
+        <div id="questionPaperContent">
             <!-- Markdown content will be rendered here -->
         </div>
     </div>

@@ -108,33 +108,86 @@ def generate_paper():
         if not all(k in data for k in required):
             return jsonify({'error': 'Missing required fields'}), 400
 
-        prompt = f"""Generate a question paper with the following specifications:
+        prompt = f"""Generate a Government Exam Preparation Question Paper
 
-Topics:
-{chr(10).join('- ' + topic for topic in data['selected_topics'])}
+Please generate a question paper based on the following specifications:
 
-Parameters:
-- Number of questions: {data['num_questions']}
-- Difficulty level: {data['difficulty'].capitalize()}
-- Question types: {', '.join(data['question_types'])}
+### Topics:  
+- {chr(10).join('- ' + topic for topic in data['selected_topics'])}
 
-Generate a complete govt exam prep level questions using ONLY the specified question types:
+### Parameters:  
+1. **Number of Questions**: {data['num_questions']}  
+2. **Difficulty Level**: {data['difficulty'].capitalize()}  
+3. **Question Types**: {', '.join(data['question_types'])}  
 
-Requirements:
-- Provide clear marking scheme
-- Include answer key at the end
-- Use proper markdown formatting
-- Ensure questions are properly numbered
-- Distribute questions evenly across topics
-- Give proper line spacing between questions and line breaks after every mcq option and question
-- every question is a mcq so they all will have a 4 options. and after before each option insert a line break
+### Language Requirements:  
+- For each question, provide both **English and Kannada versions**.  
+- Ensure there are **no grammatical or spelling errors** in either language.
+
+### Formatting:  
+1. **Number the questions sequentially** (1, 2, 3, etc.).  
+2. For each question:
+   - **English Question / Kannada Question**  
+   - For options, use the format below, ensuring both languages are represented.
+
+### Output Instructions:  
+- Ensure proper spacing between questions and options for clarity.  
+- The content should be in **plain text format** (no Markdown or HTML formatting).  
+- Include a **mix of normal MCQs and the specified MCQ types**.
+
+### Example Formats:
+
+1. **Comprehension Based Questions**
+
+   Passage: The human brain is the central organ of the nervous system. It controls various body functions. / ಮಾನವ ಮೆದುಳು ನರನಾಳದ ಕೇಂದ್ರ ಅಂಗವಾಗಿದೆ. ಇದು ವಿವಿಧ ದೇಹ ಕಾರ್ಯಗಳನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
+   Question: What is the role of the human brain? / ಮಾನವ ಮೆದುಳಿನ ಪಾತ್ರವೇನು?  
+   a) It controls body movements. / ಇದು ದೇಹದ ಚಲನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
+   b) It controls digestion. / ಇದು ದೀರ್ಘತೆಯನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
+   c) It controls memory. / ಇದು ನೆನಪನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
+   d) All of the above. / ಮೇಲ್ವಿಚಾರಣೆಯಾದ ಎಲ್ಲಾ.  
+
+2. **Match the Following**
+
+   **Column 1**:  
+   1. Earth  
+   2. Sun  
+   3. Moon  
+   4. Mars  
+
+   **Column 2**:  
+   a) Planet  
+   b) Satellite  
+   c) Star  
+   d) Satellite of Earth  
+
+   Match the correct pairs:  
+   1 - c / 1 - ಸ  
+   2 - a / 2 - ಅ  
+   3 - b / 3 - ಬ  
+   4 - d / 4 - ಡ  
+
+3. **Assertion and Reasoning**
+
+   Assertion: Water boils at 100°C. / ನೀರು 100°C ನಲ್ಲಿ ಓದುತ್ತದೆ.  
+   Reasoning: This is the boiling point of water at standard atmospheric pressure. / ಇದು ಮಾನದಂಡ ವಾಯುಮಂಡಲ ಒತ್ತಡದಲ್ಲಿ ನೀರಿನ ಆಲಂಬ ನಕಲು ಬಿಂದುವಾಗಿದೆ.  
+   a) Both assertion and reasoning are true, and reasoning explains assertion. / ಎರಡೂ ನಿರ್ಣಯ ಮತ್ತು ಕಾರಣ ಸರಿ, ಮತ್ತು ಕಾರಣ ನಿರ್ಣಯವನ್ನು ವಿವರಿಸುತ್ತದೆ.  
+   b) Both assertion and reasoning are true, but reasoning does not explain assertion. / ಎರಡೂ ನಿರ್ಣಯ ಮತ್ತು ಕಾರಣ ಸರಿ, ಆದರೆ reasoning, assertion ಅನ್ನು ವಿವರಿಸುವುದಿಲ್ಲ.  
+   c) Assertion is true, but reasoning is false. / Assertion ಸರಿ ಆದರೆ reasoning ತಪ್ಪಾಗಿದೆ.  
+   d) Assertion is false, but reasoning is true. / Assertion ತಪ್ಪಾಗಿದೆ, reasoning ಸರಿ.  
+
+4. **Statement and Conclusion**
+
+   **Statement**: All birds can fly. / ಎಲ್ಲಾ ಹಕ್ಕಿಗಳು ಹಾರಬಹುದು.  
+   **Conclusion**: A crow is a bird; therefore, it can fly. / ಕಾಗೆ ಹಕ್ಕಿಯಾಗಿದೆ, ಆದ್ದರಿಂದ ಅದು ಹಾರಬಹುದು.  
+   a) Conclusion follows from the statement. / ನಿರ್ಣಯವು ಹೇಳಿಕೆಯಿಂದ ಅನುಸರಿಸುತ್ತದೆ.  
+   b) Conclusion does not follow from the statement. / ನಿರ್ಣಯವು ಹೇಳಿಕೆಯಿಂದ ಅನುಸರಿಸುವುದಿಲ್ಲ.  
+   c) Statement is false, and conclusion follows. / ಹೇಳಿಕೆ ತಪ್ಪಾಗಿದೆ, ಆದರೆ ನಿರ್ಣಯವು ಅನುಸರಿಸುತ್ತದೆ.  
+   d) Both statement and conclusion are false. / ಹೇಳಿಕೆ ಮತ್ತು ನಿರ್ಣಯ ಎರಡೂ ತಪ್ಪಾಗಿದೆ.  
 
 """
-        print('/n', prompt, '/n')
         result = model.generate_content(prompt)
         if not result or not result.text:
             return jsonify({'error': 'Failed to generate questions'}), 500
-
         return jsonify({
             'success': True,
             'qp': result.text
