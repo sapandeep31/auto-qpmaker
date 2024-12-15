@@ -15,7 +15,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # Configure Gemini API
-genai.configure(api_key="AIzaSyBUgj8tfSIasZMejyQwurSTDSLN3dTI__8")
+genai.configure(api_key="YOUR_API_KEY")
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 @app.route('/')
