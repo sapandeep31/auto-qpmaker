@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
@@ -8,6 +8,9 @@ import google.generativeai as genai
 
 app = Flask(__name__)
 CORS(app)
+
+# Set a secret key for session management
+app.secret_key = 'your_secret_key_here'  # Replace with a proper secret key in production
 
 # Configure upload folder
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -19,7 +22,26 @@ genai.configure(api_key="AIzaSyBUgj8tfSIasZMejyQwurSTDSLN3dTI__8")
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 @app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    # Hardcoded login for now
+    if username == 'test@g' and password == 'hi':
+        session['logged_in'] = True
+        return redirect(url_for('index'))
+    else:
+        return render_template('home.html', error='Invalid credentials')
+
+@app.route('/index')
 def index():
+    # Check if user is logged in
+    if not session.get('logged_in'):
+        return redirect(url_for('home'))
     return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
@@ -108,9 +130,9 @@ def generate_paper():
         if not all(k in data for k in required):
             return jsonify({'error': 'Missing required fields'}), 400
 
-        prompt = f"""Generate a Government Exam Preparation Question Paper
+        prompt = f"""Generate a Government Exam Preparation Question Bank
 
-Please generate a question paper based on the following specifications:
+Please generate questions based on the following specifications:
 
 ### Topics:  
 - {chr(10).join('- ' + topic for topic in data['selected_topics'])}
@@ -118,73 +140,92 @@ Please generate a question paper based on the following specifications:
 ### Parameters:  
 1. **Number of Questions**: {data['num_questions']}  
 2. **Difficulty Level**: {data['difficulty'].capitalize()}  
-3. **Question Types**: {', '.join(data['question_types'])}  
+3. **Question Type**: {', '.join(data['question_types'])}  
 
 ### Language Requirements:  
 - For each question, provide both **English and Kannada versions**.  
 - Ensure there are **no grammatical or spelling errors** in either language.
 
 ### Formatting:  
-1. **Number the questions sequentially** (1, 2, 3, etc.).  
+1. Do not number the questions.  
 2. For each question:
    - **English Question / Kannada Question**  
    - For options, use the format below, ensuring both languages are represented.
+   - Correct Answer should also be mentioned before the next question.
 
 ### Output Instructions:  
 - Ensure proper spacing between questions and options for clarity.  
 - The content should be in **plain text format** (no Markdown or HTML formatting).  
-- Include a **mix of normal MCQs and the specified MCQ types**.
+- Make questions on only specified MCQ type.
 
-### Example Formats:
+### Example Formats (NOTE: these are just example formats; make similar but unique questions, don't repeat these exact questions or options):
 
-1. **Comprehension Based Questions**
+1. **Multiple Select Questions**
+
+   Which of the following statements about the Indian Constitution are correct? / ಭಾರತೀಯ ಸಂವಿಧಾನದ ಕುರಿತು ಕೆಳಗಿನ ಯಾವ ಹೇಳಿಕೆಗಳು ಸರಿಯಾಗಿವೆ?
+
+1)The Constitution of India was adopted on 26th January 1950. / ಭಾರತೀಯ ಸಂವಿಧಾನವನ್ನು 1950ರ ಜನವರಿ 26ರಂದು ಅಂಗೀಕರಿಸಲಾಯಿತು.  
+2)The Preamble of the Constitution mentions India as a "Sovereign Socialist Secular Democratic Republic." / ಸಂವಿಧಾನದ ಮುನ್ನುಡಿಯಲ್ಲಿ ಭಾರತವನ್ನು "ಸಾರ್ವಭೌಮ ಸಮಾಜವಾದಿ ಧರ್ಮನಿರಪೇಕ್ಷ ಪ್ರಜಾಪ್ರಭುತ್ವ ಗಣರಾಜ್ಯ" ಎಂದು ಉಲ್ಲೇಖಿಸಲಾಗಿದೆ.  
+3)The Fundamental Duties were part of the original Constitution. / ಮೂಲ ಸಂವಿಧಾನದಲ್ಲಿ ಮೂಲಭೂತ ಕರ್ತವ್ಯಗಳನ್ನು ಸೇರಿಸಲಾಗಿದೆ.  
+4)Directive Principles of State Policy are non-justiciable in nature. / ರಾಜ್ಯತಂತ್ರದ ಮಾರ್ಗಸೂಚಿ ತತ್ವಗಳು ಕಾನೂನು ಸಮ್ಮತವಿಲ್ಲದವು.  
+(a) 1 and 2 / 1 ಮತ್ತು 2  
+(b) 2 and 3 / 2 ಮತ್ತು 3  
+(c) 2 and 4 / 2 ಮತ್ತು 4  
+(d) 1 and 4 / 1 ಮತ್ತು 4  
+**Correct Answer**: (c) 2 and 4 / 2 ಮತ್ತು 4  
+
+2. **Comprehension Based Questions**
 
    Passage: The human brain is the central organ of the nervous system. It controls various body functions. / ಮಾನವ ಮೆದುಳು ನರನಾಳದ ಕೇಂದ್ರ ಅಂಗವಾಗಿದೆ. ಇದು ವಿವಿಧ ದೇಹ ಕಾರ್ಯಗಳನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
    Question: What is the role of the human brain? / ಮಾನವ ಮೆದುಳಿನ ಪಾತ್ರವೇನು?  
-   a) It controls body movements. / ಇದು ದೇಹದ ಚಲನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
-   b) It controls digestion. / ಇದು ದೀರ್ಘತೆಯನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
-   c) It controls memory. / ಇದು ನೆನಪನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
-   d) All of the above. / ಮೇಲ್ವಿಚಾರಣೆಯಾದ ಎಲ್ಲಾ.  
+(a) It controls body movements. / ಇದು ದೇಹದ ಚಲನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
+(b) It controls digestion. / ಇದು ದೀರ್ಘತೆಯನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
+(c) It controls memory. / ಇದು ನೆನಪನ್ನು ನಿಯಂತ್ರಿಸುತ್ತದೆ.  
+(d) All of the above. / ಮೇಲ್ವಿಚಾರಣೆಯಾದ ಎಲ್ಲಾ.  
+**Correct Answer**: (d) All of the above / ಮೇಲ್ವಿಚಾರಣೆಯಾದ ಎಲ್ಲಾ.  
 
-2. **Match the Following**
+3. **Match the Following**
+Column 1 / ಕಾಲಮ್ 1:
 
-   **Column 1**:  
-   1. Earth  
-   2. Sun  
-   3. Moon  
-   4. Mars  
+Earth / ಭೂಮಿ
+Sun / ಸೂರ್ಯ
+Moon / ಚಂದ್ರ
+Mars / ಮಂಗಳ
+Column 2 / ಕಾಲಮ್ 2:
+a) Planet / ಗ್ರಹ
+b) Star / ನಕ್ಷತ್ರ
+c) Natural Satellite / ನೈಸರ್ಗಿಕ ಉಪಗ್ರಹ
+d) Red Planet / ಕೆಂಪು ಗ್ರಹ
 
-   **Column 2**:  
-   a) Planet  
-   b) Satellite  
-   c) Star  
-   d) Satellite of Earth  
+(a) 1 - a, 2 - b, 3 - c, 4 - d / 1 - ಅ, 2 - ಬ, 3 - ಸಿ, 4 - ಡ
+(b) 1 - b, 2 - a, 3 - d, 4 - c / 1 - ಬ, 2 - ಅ, 3 - ಡ, 4 - ಸಿ
+(c) 1 - c, 2 - d, 3 - a, 4 - b / 1 - ಸಿ, 2 - ಡ, 3 - ಅ, 4 - ಬ
+(d) 1 - a, 2 - c, 3 - d, 4 - b / 1 - ಅ, 2 - ಸಿ, 3 - ಡ, 4 - ಬ
 
-   Match the correct pairs:  
-   1 - c / 1 - ಸ  
-   2 - a / 2 - ಅ  
-   3 - b / 3 - ಬ  
-   4 - d / 4 - ಡ  
+Correct Answer:
+(a) 1 - a, 2 - b, 3 - c, 4 - d / 1 - ಅ, 2 - ಬ, 3 - ಸಿ, 4 - ಡ 
 
-3. **Assertion and Reasoning**
+4. **Assertion and Reasoning**
 
    Assertion: Water boils at 100°C. / ನೀರು 100°C ನಲ್ಲಿ ಓದುತ್ತದೆ.  
    Reasoning: This is the boiling point of water at standard atmospheric pressure. / ಇದು ಮಾನದಂಡ ವಾಯುಮಂಡಲ ಒತ್ತಡದಲ್ಲಿ ನೀರಿನ ಆಲಂಬ ನಕಲು ಬಿಂದುವಾಗಿದೆ.  
-   a) Both assertion and reasoning are true, and reasoning explains assertion. / ಎರಡೂ ನಿರ್ಣಯ ಮತ್ತು ಕಾರಣ ಸರಿ, ಮತ್ತು ಕಾರಣ ನಿರ್ಣಯವನ್ನು ವಿವರಿಸುತ್ತದೆ.  
-   b) Both assertion and reasoning are true, but reasoning does not explain assertion. / ಎರಡೂ ನಿರ್ಣಯ ಮತ್ತು ಕಾರಣ ಸರಿ, ಆದರೆ reasoning, assertion ಅನ್ನು ವಿವರಿಸುವುದಿಲ್ಲ.  
-   c) Assertion is true, but reasoning is false. / Assertion ಸರಿ ಆದರೆ reasoning ತಪ್ಪಾಗಿದೆ.  
-   d) Assertion is false, but reasoning is true. / Assertion ತಪ್ಪಾಗಿದೆ, reasoning ಸರಿ.  
+(a) Both assertion and reasoning are true, and reasoning explains assertion. / ಎರಡೂ ನಿರ್ಣಯ ಮತ್ತು ಕಾರಣ ಸರಿ, ಮತ್ತು ಕಾರಣ ನಿರ್ಣಯವನ್ನು ವಿವರಿಸುತ್ತದೆ.  
+(b) Both assertion and reasoning are true, but reasoning does not explain assertion. / ಎರಡೂ ನಿರ್ಣಯ ಮತ್ತು ಕಾರಣ ಸರಿ, ಆದರೆ reasoning, assertion ಅನ್ನು ವಿವರಿಸುವುದಿಲ್ಲ.  
+(c) Assertion is true, but reasoning is false. / Assertion ಸರಿ ಆದರೆ reasoning ತಪ್ಪಾಗಿದೆ.  
+(d) Assertion is false, but reasoning is true. / Assertion ತಪ್ಪಾಗಿದೆ, reasoning ಸರಿ.  
+**Correct Answer**: (a) Both assertion and reasoning are true, and reasoning explains assertion / ಎರಡೂ ನಿರ್ಣಯ ಮತ್ತು ಕಾರಣ ಸರಿ, ಮತ್ತು ಕಾರಣ ನಿರ್ಣಯವನ್ನು ವಿವರಿಸುತ್ತದೆ.  
 
-4. **Statement and Conclusion**
+5. **Statement and Conclusion**
 
-   **Statement**: All birds can fly. / ಎಲ್ಲಾ ಹಕ್ಕಿಗಳು ಹಾರಬಹುದು.  
-   **Conclusion**: A crow is a bird; therefore, it can fly. / ಕಾಗೆ ಹಕ್ಕಿಯಾಗಿದೆ, ಆದ್ದರಿಂದ ಅದು ಹಾರಬಹುದು.  
-   a) Conclusion follows from the statement. / ನಿರ್ಣಯವು ಹೇಳಿಕೆಯಿಂದ ಅನುಸರಿಸುತ್ತದೆ.  
-   b) Conclusion does not follow from the statement. / ನಿರ್ಣಯವು ಹೇಳಿಕೆಯಿಂದ ಅನುಸರಿಸುವುದಿಲ್ಲ.  
-   c) Statement is false, and conclusion follows. / ಹೇಳಿಕೆ ತಪ್ಪಾಗಿದೆ, ಆದರೆ ನಿರ್ಣಯವು ಅನುಸರಿಸುತ್ತದೆ.  
-   d) Both statement and conclusion are false. / ಹೇಳಿಕೆ ಮತ್ತು ನಿರ್ಣಯ ಎರಡೂ ತಪ್ಪಾಗಿದೆ.  
-
+   **Statement / ಹೇಳಿಕೆ**: All birds can fly. / ಎಲ್ಲಾ ಹಕ್ಕಿಗಳು ಹಾರಬಹುದು.  
+   **Conclusion / ನಿರ್ಣಯ**: A crow is a bird; therefore, it can fly. / ಕಾಗೆ ಹಕ್ಕಿಯಾಗಿದೆ, ಆದ್ದರಿಂದ ಅದು ಹಾರಬಹುದು.  
+(a) Conclusion follows from the statement. / ನಿರ್ಣಯವು ಹೇಳಿಕೆಯಿಂದ ಅನುಸರಿಸುತ್ತದೆ.  
+(b) Conclusion does not follow from the statement. / ನಿರ್ಣಯವು ಹೇಳಿಕೆಯಿಂದ ಅನುಸರಿಸುವುದಿಲ್ಲ.  
+(c) Statement is false, and conclusion follows. / ಹೇಳಿಕೆ ತಪ್ಪಾಗಿದೆ, ಆದರೆ ನಿರ್ಣಯವು ಅನುಸರಿಸುತ್ತದೆ.  
+(d) Both statement and conclusion are false. / ಹೇಳಿಕೆ ಮತ್ತು ನಿರ್ಣಯ ಎರಡೂ ತಪ್ಪಾಗಿದೆ.  
+**Correct Answer**: (a) Conclusion follows from the statement / ನಿರ್ಣಯವು ಹೇಳಿಕೆಯಿಂದ ಅನುಸರಿಸುತ್ತದೆ.  
 """
+
         result = model.generate_content(prompt)
         if not result or not result.text:
             return jsonify({'error': 'Failed to generate questions'}), 500

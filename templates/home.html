@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuestionPro - Intelligent Exam Preparation Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero {
+            background-image: url('https://mir-s3-cdn-cf.behance.net/project_modules/1400_opt_1/4e0cc328008799.56e41b35c50a5.gif');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-transparent">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <img src="/api/placeholder/50/50" alt="QuestionPro Logo" class="w-10 h-10 rounded-full">
+                <span class="text-2xl font-bold gradient-text">QuestionPro</span>
+            </div>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#features" class="text-white hover:text-blue-300 transition-colors">Features</a>
+                <a href="#about" class="text-white hover:text-blue-300 transition-colors">About</a>
+                <a href="#pricing" class="text-white hover:text-blue-300 transition-colors">Pricing</a>
+                <a href="#contact" class="text-white hover:text-blue-300 transition-colors">Contact</a>
+                <a href="javascript:showLoginModal()"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="text-5xl font-bold leading-tight">
+                Revolutionize Exam <br>
+                Preparation <span class="gradient-text">for Coaching Institutes</span>
+            </h1>
+            <p class="text-xl text-gray-200 leading-relaxed mt-4">
+                AI-powered question generation, syllabus analysis, and multilingual support to transform your
+                coaching institute's efficiency.
+            </p>
+            <a href="javascript:showLoginModal()"
+                class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-all mt-6">
+                Get Started Today
+            </a>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed z-50 inset-0 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white shadow-lg rounded-2xl p-8 border border-gray-200 w-full max-w-md">
+                <h3 class="text-2xl font-semibold text-center mb-6 text-gray-800">Institute Login</h3>
+
+                <form action="{{ url_for('login') }}" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Institute ID</label>
+                        <input type="text" name="username" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Password</label>
+                        <input type="password" name="password" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 rounded-lg hover:opacity-90 transition-all">
+                        Login
+                    </button>
+                </form>
+                <div class="text-center mt-4">
+                    <a href="#" class="text-sm text-blue-600 hover:underline">Forgot Password?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-16 gradient-text">
+                Powerful Features for Coaching Institutes
+            </h2>
+            <div class="grid lg:grid-cols-3 gap-12">
+                <div class="text-center">
+                    <i class="fas fa-brain text-5xl text-blue-600 mb-4"></i>
+                    <h3 class="text-2xl font-semibold mb-4">AI-Powered Question Generation</h3>
+                    <p class="text-gray-600">Instantly create diverse, high-quality questions across multiple subjects
+                        and difficulty levels.</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-book-open text-5xl text-blue-600 mb-4"></i>
+                    <h3 class="text-2xl font-semibold mb-4">Comprehensive Syllabus Analysis</h3>
+                    <p class="text-gray-600">Intelligent tracking and optimization of curriculum coverage and learning
+                        outcomes.</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-globe text-5xl text-blue-600 mb-4"></i>
+                    <h3 class="text-2xl font-semibold mb-4">Multilingual Support</h3>
+                    <p class="text-gray-600">Create and manage content in multiple languages to reach a broader student
+                        base.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-gray-100">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-8 gradient-text">About QuestionPro</h2>
+            <p class="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                QuestionPro is an innovative platform designed to empower coaching institutes with cutting-edge AI
+                technology. We simplify exam preparation by providing intelligent tools that save time, enhance
+                learning, and improve educational outcomes.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 bg-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-8 gradient-text">Contact Us</h2>
+            <div class="max-w-md mx-auto space-y-4">
+                <p class="text-xl text-gray-700">
+                    <i class="fas fa-phone mr-3 text-blue-600"></i>+91 8217272894
+                </p>
+                <p class="text-xl text-gray-700">
+                    <i class="fas fa-envelope mr-3 text-blue-600"></i>sapandeep318@gmail.com
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 QuestionPro. All rights reserved.</p>
+            <div class="mt-4 space-x-4">
+                <a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // GSAP animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Navigation fade-in
+        gsap.from("nav", {
+            opacity: 0,
+            y: -50,
+            duration: 1,
+            ease: "power3.out"
+        });
+
+        // Features section scroll animations
+        gsap.utils.toArray("#features > div > div").forEach(feature => {
+            gsap.from(feature, {
+                scrollTrigger: {
+                    trigger: feature,
+                    start: "top 80%",
+                    toggleActions: "play none none reverse"
+                },
+                opacity: 0,
+                y: 50,
+                duration: 0.8,
+                ease: "power2.out"
+            });
+        });
+
+        // Login modal
+        function showLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        // Close login modal on click outside
+        document.addEventListener('click', (event) => {
+            const modal = document.getElementById('login-modal');
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>
