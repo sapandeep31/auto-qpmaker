@@ -247,4 +247,4 @@ Please generate questions based on the following specifications:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
