@@ -1,0 +1,6 @@
+Flask
+flask-cors
+Werkzeug
+pdfplumber
+python-dotenv
+google-generativeai
