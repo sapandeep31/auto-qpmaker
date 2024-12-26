@@ -5,12 +5,14 @@ import os
 import pdfplumber
 import json
 import google.generativeai as genai
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
 # Set a secret key for session management
-app.secret_key = 'your_secret_key_here'  # Replace with a proper secret key in production
+app.secret_key = 'your_secret_key_here'  
 
 # Configure upload folder
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -18,7 +20,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # Configure Gemini API
-genai.configure(api_key="YOUR_API_KEY")
+genai.configure(api_key = os.getenv('GENAI_API_KEY'))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 @app.route('/')
