@@ -31,19 +31,25 @@
             'Statement and Conclusion'
         ],
         addManualTopic() {
-        if (!this.newTopic.trim()) {
-            this.error = 'Please enter a topic';
-            return;
-        }
-            if (!this.topics.includes(this.newTopic.trim())) {
-            this.topics.push(this.newTopic.trim());
-            this.selectedTopics.push(this.newTopic.trim());
-            this.newTopic = '';
-            this.error = '';
-        } else {
-            this.error = 'Topic already exists';
-        }
-    },
+            if (!this.newTopic.trim()) {
+                this.error = 'Please enter a topic';
+                return;
+            }
+            const fullTopic = this.newTopic.trim();
+            const displayTopic = fullTopic.length > 150 ? fullTopic.substring(0, 150) + '...' : fullTopic;
+            
+            if (!this.topics.includes(fullTopic)) {
+                this.topics.push(fullTopic);
+                this.selectedTopics.push(fullTopic);
+                this.newTopic = '';
+                this.error = '';
+            } else {
+                this.error = 'Topic already exists';
+            }
+        },
+        displayTopic(topic) {
+            return topic.length > 150 ? topic.substring(0, 150) + '...' : topic;
+        },
         async uploadSyllabus() {
             if (!this.file) {
                 alert('Please select a PDF file');
@@ -106,14 +112,7 @@
                     this.showResult = true;
                     this.$nextTick(() => {
                         document.getElementById('questionPaperContent').innerText = this.questionPaper;
-                        
-                        // Scroll to the generated question paper
-                        document.getElementById('questionPaperContent').scrollIntoView({
-                            behavior: 'smooth'
-                        });
                     });
-
-                    // Reset question type to allow regeneration
                     this.questionType = '';
                 } else {
                     throw new Error(result.error);
@@ -146,7 +145,7 @@
                 </div>
                 <p x-show="error" x-text="error" class="mt-2 text-sm text-red-600"></p>
             </div>
-            
+
             <div class="relative mb-8">
                 <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-300"></div>
@@ -155,7 +154,7 @@
                     <span class="bg-white px-4 text-sm text-gray-500">OR</span>
                 </div>
             </div>
-            
+
             <!-- File Upload Section -->
             <div class="mb-8">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -173,15 +172,16 @@
                     <span x-show="loading">Processing...</span>
                 </button>
             </div>
-            
+
             <!-- Topics Selection -->
             <div x-show="topics.length > 0" class="mb-8">
                 <h2 class="text-lg font-semibold mb-3">Selected Topics</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <template x-for="topic in topics" :key="topic">
                         <label class="flex items-center space-x-2">
-                            <input type="checkbox" :value="topic" x-model="selectedTopics" class="rounded text-blue-600">
-                            <span x-text="topic" class="text-sm"></span>
+                            <input type="checkbox" :value="topic" x-model="selectedTopics"
+                                class="rounded text-blue-600">
+                            <span x-text="displayTopic(topic)" class="text-sm"></span>
                         </label>
                     </template>
                 </div>
@@ -223,35 +223,8 @@
         <!-- Question Paper Display -->
         <div x-show="showResult" class="bg-white rounded-lg shadow-lg p-6 mt-8">
             <div class="max-w-4xl mx-auto">
-                <div class="flex justify-between items-center mb-6 no-print">
-                    <h2 class="text-xl font-bold">Generated Questions</h2>
-                    <button @click="window.print()"
-                        class="bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors">
-                        Print Questions
-                    </button>
-                </div>
-                <style>
-                    @media print {
-                        body * {
-                            visibility: hidden;
-                        }
-
-                        #questionPaperContent,
-                        #questionPaperContent * {
-                            visibility: visible;
-                        }
-
-                        #questionPaperContent {
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                        }
-                    }
-                </style>
-                <div id="questionPaperContent">
-                    <!-- Markdown content will be rendered here -->
-                </div>
+                <h2 class="text-xl font-bold mb-6">Generated Questions</h2>
+                <div id="questionPaperContent"></div>
             </div>
         </div>
     </div>
