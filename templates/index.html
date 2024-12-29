@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Question Paper Generator</title>
+    <title>Questions Generator</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -132,11 +133,11 @@
             <!-- Manual Topic Entry -->
             <div class="mb-8">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Add Topics Manually
+                    Add Topics or Rules Manually
                 </label>
                 <div class="flex gap-2">
                     <input type="text" x-model="newTopic" @keyup.enter="addManualTopic()"
-                        placeholder="Enter topic name (English/ಕನ್ನಡ)"
+                        placeholder="Enter topic name (English/ಕನ್ನಡ) / Rules"
                         class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     <button @click="addManualTopic()"
                         class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">

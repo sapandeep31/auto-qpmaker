@@ -36,7 +36,7 @@ def upload_file(app):
             Use this schema:
             {{
                 "topics": [
-                    "English Topic Name/Kannada Topic Name",
+                    "English Topic Name/Kannada Topic Name (if you are taking out topic names, dont take it out without context, for example, if a topic name is 'downfall' then from previous topic or the same chapter take out as downfall of 'the thing'-- I MEAN TOPICS WITH CONTEXT)",
                     ...
                 ]
             }}

@@ -4,3 +4,4 @@ Werkzeug
 pdfplumber
 python-dotenv
 google-generativeai
+pymongo

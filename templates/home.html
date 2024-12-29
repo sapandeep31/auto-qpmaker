@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuestionPro - Intelligent Exam Preparation Platform</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -58,23 +59,61 @@
 
 <body>
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 bg-transparent">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <img src="/api/placeholder/50/50" alt="QuestionPro Logo" class="w-10 h-10 rounded-full">
-                <span class="text-2xl font-bold gradient-text">QuestionPro</span>
+    <nav class="fixed w-full z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="bg-black bg-opacity-70 rounded-lg shadow-lg px-4 py-2">
+                <div class="flex justify-between items-center">
+                    <!-- Logo Section -->
+                    <div class="flex items-center space-x-4">
+                        <img src="{{ url_for('static', filename='favicon.ico') }}" alt="QuestionPro Logo"
+                            class="w-10 h-10 rounded-full">
+                        <span class="text-2xl font-bold gradient-text">QuestionPro</span>
+                    </div>
+    
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex space-x-8 items-center">
+                        <a href="#features"
+                            class="text-white font-medium hover:text-blue-300 transition-colors">Features</a>
+                        <a href="#about" class="text-white font-medium hover:text-blue-300 transition-colors">About</a>
+                        <a href="#contact" class="text-white font-medium hover:text-blue-300 transition-colors">Contact</a>
+                        <a href="javascript:showLoginModal()"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all">
+                            Login
+                        </a>
+                    </div>
+    
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-button" class="md:hidden text-white p-2 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <div class="hidden md:flex space-x-8 items-center">
-                <a href="#features" class="text-white hover:text-blue-300 transition-colors">Features</a>
-                <a href="#about" class="text-white hover:text-blue-300 transition-colors">About</a>
-                <a href="#pricing" class="text-white hover:text-blue-300 transition-colors">Pricing</a>
-                <a href="#contact" class="text-white hover:text-blue-300 transition-colors">Contact</a>
-                <a href="javascript:showLoginModal()"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all">Login</a>
+    
+            <!-- Mobile Navigation Menu -->
+            <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 right-0 mt-2 mx-6">
+                <div class="bg-black bg-opacity-90 rounded-lg shadow-xl">
+                    <div class="py-2">
+                        <a href="#features" class="block px-4 py-3 text-white hover:bg-blue-600 transition-colors">
+                            Features
+                        </a>
+                        <a href="#about" class="block px-4 py-3 text-white hover:bg-blue-600 transition-colors">
+                            About
+                        </a>
+                        <a href="#contact" class="block px-4 py-3 text-white hover:bg-blue-600 transition-colors">
+                            Contact
+                        </a>
+                        <a href="javascript:showLoginModal()"
+                            class="block px-4 py-3 text-white hover:bg-blue-600 transition-colors">
+                            Login
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
-
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
@@ -86,7 +125,7 @@
                 AI-powered question generation, syllabus analysis, and multilingual support to transform your
                 coaching institute's efficiency.
             </p>
-            <a href="javascript:showLoginModal()"
+            <a href="#contact"
                 class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition-all mt-6">
                 Get Started Today
             </a>
@@ -116,7 +155,7 @@
                     </button>
                 </form>
                 <div class="text-center mt-4">
-                    <a href="#" class="text-sm text-blue-600 hover:underline">Forgot Password?</a>
+                    <a href="javascript:handleForgotPassword()" class="text-sm text-blue-600 hover:underline">Forgot Password?</a>
                 </div>
             </div>
         </div>
@@ -190,6 +229,64 @@
     </footer>
 
     <script>
+        // Mobile menu functionality
+            document.addEventListener('DOMContentLoaded', function () {
+                const mobileMenuButton = document.getElementById('mobile-menu-button');
+                const mobileMenu = document.getElementById('mobile-menu');
+                const mobileMenuLinks = mobileMenu.getElementsByTagName('a');
+
+                // Toggle menu
+                function toggleMobileMenu(event) {
+                    event.stopPropagation();
+                    mobileMenu.classList.toggle('hidden');
+
+                    // Update aria-expanded
+                    const isExpanded = !mobileMenu.classList.contains('hidden');
+                    mobileMenuButton.setAttribute('aria-expanded', isExpanded);
+                }
+
+                // Handle button click
+                mobileMenuButton.addEventListener('click', toggleMobileMenu);
+
+                // Handle menu item clicks
+                Array.from(mobileMenuLinks).forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenuButton.setAttribute('aria-expanded', 'false');
+
+                        // If it's not the login link, handle smooth scroll
+                        if (!link.textContent.includes('Login')) {
+                            const targetId = link.getAttribute('href').substring(1);
+                            const targetElement = document.getElementById(targetId);
+                            if (targetElement) {
+                                targetElement.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }
+                    });
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', (event) => {
+                    if (!mobileMenu.contains(event.target) &&
+                        !mobileMenuButton.contains(event.target) &&
+                        !mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenuButton.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+
+            // Add scroll event listener to handle navigation background
+            window.addEventListener('scroll', function () {
+                const nav = document.querySelector('nav');
+                if (window.scrollY > 50) {
+                    nav.querySelector('.bg-black').classList.remove('bg-opacity-70');
+                    nav.querySelector('.bg-black').classList.add('bg-opacity-90');
+                } else {
+                    nav.querySelector('.bg-black').classList.remove('bg-opacity-90');
+                    nav.querySelector('.bg-black').classList.add('bg-opacity-70');
+                }
+            });
         // GSAP animations
         gsap.registerPlugin(ScrollTrigger);
 
@@ -215,19 +312,25 @@
                 ease: "power2.out"
             });
         });
+        document.addEventListener('click', (event) => {
+                const modal = document.getElementById('login-modal');
+                if (event.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
 
+            // Function to handle forgot password link
+            function handleForgotPassword() {
+                // Hide the modal
+                document.getElementById('login-modal').classList.add('hidden');
+
+                // Scroll to contact section
+                document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+            }
         // Login modal
         function showLoginModal() {
             document.getElementById('login-modal').classList.remove('hidden');
-        }
-
-        // Close login modal on click outside
-        document.addEventListener('click', (event) => {
-            const modal = document.getElementById('login-modal');
-            if (event.target === modal) {
-                modal.classList.add('hidden');
-            }
-        });
+        };
     </script>
 </body>
 
