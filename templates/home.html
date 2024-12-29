@@ -6,12 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuestionPro - Intelligent Exam Preparation Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -63,7 +61,7 @@
     <nav class="fixed w-full z-50 bg-transparent">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <img src="{{ url_for('static', filename='favicon.ico') }}" alt="QuestionPro Logo" class="w-10 h-10 rounded-full">
+                <img src="/api/placeholder/50/50" alt="QuestionPro Logo" class="w-10 h-10 rounded-full">
                 <span class="text-2xl font-bold gradient-text">QuestionPro</span>
             </div>
             <div class="hidden md:flex space-x-8 items-center">
